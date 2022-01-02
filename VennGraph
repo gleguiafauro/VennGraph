@@ -1,0 +1,299 @@
+####VennDiagram 
+genphen=read.csv2("GenPhen.csv")
+#First calculate the area of each combo
+area1=nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4))
+area2=nrow(subset(genphen, (genphen$ABI3_rs616338+genphen$APOE_rs429358) == 2))
+#ABI3+APOE doesnt have ==4, only 2 samples in ==3, so I use ==2
+#lets see the area shared by the two groups
+cross.area=nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2))
+#result==which mean that all the ABCa7 individuals are included in the ABI3 combo. 
+#lets now plot a single category with the Venngraph
+install.packages("VennDiagram")
+library(VennDiagram)
+draw.single.venn(area = nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)), category = "ABCA7 & APOE")
+#it works! lets make it beautiful :)
+draw.single.venn(area = nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)), category = "ABCA7 & APOE", lwd=2, col="purple", fill="orange")
+nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2))
+#amazingquetecagas. Ahora vamos a intentar solapar las areas
+draw.pairwise.venn(
+  area1= nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)), 
+  area2=nrow(subset(genphen, (genphen$ABI3_rs616338+genphen$APOE_rs429358) == 2)), 
+  cross.area=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2)))
+#it doesnt work, lets firts try with numbers
+grid.newpage()
+draw.pairwise.venn(area1 = area1, 
+                   area2 = area2,
+                   cross.area = cross.area, 
+                   category = c("ABCA7 & APOE", "ABI3 & APOE"),
+                   cat.pos = c(0,0),
+                   cat.dist = rep(0.025, 2),
+                   fill=c("light blue", "pink"),
+                   lty="blank", 
+                   alpha=0.5)
+#its great! lets save it
+#lets do it for all the 2 genes_APOE combos with OR>5.52 (APOE alone)
+area3=nrow(subset(genphen, (genphen$CLU_rs11787077+genphen$APOE_rs429358) == 4))
+#lets try to include it in the cross.area
+cross.area=nrow(subset(genphen,(genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2 & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==4)
+cross.area
+#it works, lets mix it
+#I need to also create the area for all the possible combinations
+area4=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2)))
+area4
+area5=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==2)))
+area5
+area6=(nrow(subset(genphen, (genphen$ABI3_rs616338+genphen$APOE_rs429358) == 2 & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==2)))
+area6
+grid.newpage()
+draw.triple.venn(area1 = area1, area2 = area2, area3=area3, n12=area4, n23=area6, n13 = area5, n123 = cross.area,cat.pos = c(0,0,0),fill=c("light blue", "pink", "dark blue"),lty="blank", alpha=0.5)
+#okey it worked but the graph is a shit, maybe a commit a mistake assigning areas to each category, so lets repeat it
+areaABCA7=nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4))
+areaABCA7
+areaABI3=nrow(subset(genphen, (genphen$ABI3_rs616338+genphen$APOE_rs429358) == 2))
+areaABI3
+areaCLU=nrow(subset(genphen, (genphen$CLU_rs11787077+genphen$APOE_rs429358) == 4))
+areaCLU
+areaABCA7_CLU=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 
+                           & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==4)))
+areaABCA7_CLU
+areaABCA7_ABI3=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 
+                            & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2)))
+areaABCA7_ABI3
+areaABI3_CLU=(nrow(subset(genphen, (genphen$ABI3_rs616338+genphen$APOE_rs429358) == 2 
+                          & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==4)))
+areaABI3_CLU
+area_all=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 
+                      & (genphen$ABI3_rs616338+genphen$APOE_rs429358)==2 & (genphen$CLU_rs11787077+genphen$APOE_rs429358)==4)))
+area_all
+#all good, lets plot it
+grid.newpage()
+draw.triple.venn(scaled = FALSE,
+                 area1 = areaABCA7, 
+                 area2 = areaABI3, 
+                 area3=areaCLU, 
+                 n12=areaABCA7_ABI3, 
+                 n23=areaABI3_CLU, 
+                 n13 = areaABCA7_CLU, 
+                 n123=area_all,
+                 cat.pos = c(0,0,0),
+                 fill=c("blue", "pink", "purple"),
+                 lty="blank", alpha=0.5, 
+                 category = c("ABCA7 & APOE", "ABI3 & APOE", "CLU & APOE"))
+# it works perfectly! maybe I can add more layers, but it will be so fucking difficult
+#I have just read that the VeenDiagram package only can hold 7 different cattegories, which is already really hard to code
+#lets try the same, but comparing the top#3trios
+area.trio1=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+area.trio1
+area.trio2=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+area.trio2
+area.trio3=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+area.trio3
+area.trio12=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+area.trio12
+area.trio13=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+area.trio13
+area.trio23=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+area.trio123=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+area.trio123
+#lets try it
+grid.newpage()
+draw.triple.venn(area1 = area.trio1, area2 = area.trio2, area3=area.trio3, n12=area.trio12, n23=area.trio23, n13 = area.trio13, n123=area.trio123,cat.pos = c(0,0,180),fill = c("skyblue", "pink1", "mediumorchid"),lty="blank", alpha=0.5, category = c("UNC5CL & ANK3 & APOE", "KLF16 & CTSH & APOE", "JAZF1 & CTSH & APOE"), cat.cex = c(0.8,0.8,0.8), cat.default.pos = "outer")
+#lets try top#2pairs with APOE
+area.duo1=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+area.duo1
+area.duo2=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3)))
+area.duo2
+area.duo3=(nrow(subset(genphen, (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+area.duo3
+area.duo12=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3)))
+area.duo12
+area.duo13=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+area.duo13
+area.duo23=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+area.duo23
+area.duo123=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+area.duo123
+#lets try it
+grid.newpage()
+draw.triple.venn(area1 = area.duo1, area2 = area.duo2, area3=area.duo3, n12=area.duo12, n23=area.duo23, n13 = area.duo13, n123=area.duo123,cat.pos = c(0,0,0),fill = c("skyblue", "pink1", "mediumorchid"),lty="blank", alpha=0.5, category = c("ABCA7 & APOE", "PRDM7 & APOE", "COX7C & APOE"), cat.cex = c(0.8,0.8,0.8), cat.default.pos = "outer")
+#now do the same with top#3quarts with APOE
+quart1=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$EPDR1_rs6966331+genphen$CLU_rs11787077) == 8)))
+quart1
+quart2=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$KLF16_rs149080927) == 8)))
+quart2
+quart3=(nrow(subset(genphen, (genphen$UMAD1_rs6943429+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$GRN_rs5848) == 7)))
+quart3
+quart12=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$EPDR1_rs6966331+genphen$CLU_rs11787077) == 8 & (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$KLF16_rs149080927) == 8)))
+quart12
+quart13=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$EPDR1_rs6966331+genphen$CLU_rs11787077) == 8 & (genphen$UMAD1_rs6943429+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$GRN_rs5848) == 7)))
+quart13
+quart23=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$KLF16_rs149080927) == 8 & (genphen$UMAD1_rs6943429+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$GRN_rs5848) == 7)))
+quart23
+quart123=(nrow(subset(genphen, (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$KLF16_rs149080927) == 8 & (genphen$UMAD1_rs6943429+genphen$APOE_rs429358+genphen$DOC2A_rs1140239+genphen$GRN_rs5848) == 7 & (genphen$CTSH_rs12592898+genphen$APOE_rs429358+genphen$EPDR1_rs6966331+genphen$CLU_rs11787077) == 8)))
+quart123
+grid.newpage()
+draw.triple.venn(area1 = quart1, area2 = quart2, area3=quart3, n12=quart12, n23=quart23, n13 = quart13, n123=quart123,cat.pos = c(0,0,180),fill = c("skyblue", "pink1", "mediumorchid"),lty="blank", alpha=0.5, category = c("CTSH, APOE, EPDR & CLU", "CTSH, APOE, DOC2A & GRN", "UMAD, APOE, DOC2A, GRN"), cat.cex = c(0.8,0.8,0.8), cat.default.pos = "outer")
+#lets see how does it look when adding two more combos to the graph
+#I am copy-pasting the code for top#3duos_APOE
+#top5duos_APOE
+duo1=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+duo1
+duo2=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3)))
+duo2
+duo3=(nrow(subset(genphen, (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+duo3
+duo4=(nrow(subset(genphen, (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo4
+duo5=(nrow(subset(genphen, (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo5
+duo12=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3)))
+duo12
+duo13=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+duo13
+duo14=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo14
+duo15=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo15
+duo23=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4)))
+duo23
+duo24=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo24
+duo25=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo25
+duo34=(nrow(subset(genphen, (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo34
+duo35=(nrow(subset(genphen, (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo35
+duo45=(nrow(subset(genphen, (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo45
+duo123=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+duo123
+duo124=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+duo124
+duo125=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+duo125
+duo134=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo134
+duo135=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo135
+duo145=(nrow(subset(genphen, (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+area.duo145
+duo234=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo234
+duo235=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo235
+duo245=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo245
+duo345=(nrow(subset(genphen, (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo345
+duo1234=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo1234
+duo1235=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo1235
+duo1245=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4)))
+duo1245
+duo1345=(nrow(subset(genphen, (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo1345
+duo2345=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3)))
+duo2345
+duo12345=(nrow(subset(genphen, (genphen$PRDM7_rs56407236+genphen$APOE_rs429358) == 3 & (genphen$COX7C_rs62374257+genphen$APOE_rs429358) == 4 & (genphen$IGHcluster_rs7157106+genphen$APOE_rs429358) == 4 & (genphen$SHARPIN_rs34173062+genphen$APOE_rs429358) == 3 & (genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 4)))
+duo12345
+#lets try it
+grid.newpage()
+draw.quintuple.venn(area1 = duo1, area2 = duo2, area3=duo3, area4 = duo4, area5 = duo5, n12=duo12, n13 = duo13, n14 = duo14, n15 = duo15, n23 = duo23, n24 = duo24, n25 = duo25,  n34 = duo34, n35 = duo35, n45 = duo45, n123=duo123, n124 = duo124, n125=duo125, n134=duo134, n135 =duo135, n145 = duo145, n234 = duo234, n235=duo235, n245=duo245, n345=duo345, n1234 = duo1234, n1235 = duo1235, n1245=duo1245, n1345 = duo1345, n2345 = duo2345, n12345 = duo12345, cat.pos = c(0, 287.5, 215, 145, 70),fill = c("skyblue", "pink1", "mediumorchid","green","yellow"),lty="blank", alpha=0.5, category = c("ABCA7","PRKD3","COX7C","IGHclust","SHARPIN"), cat.cex = rep(1,5), cat.default.pos = "inner", print.mode = "raw", sigdigs = 2)
+ #try to re-run it but with different code
+grid.newpage()
+draw.quintuple.venn(area1 = duo1, area2 = duo2, area3=duo3, area4 = duo4, area5 = duo5, n12=duo12, n13 = duo13, n14 = duo14, n15 = duo15, n23 = duo23, n24 = duo24, n25 = duo25,  n34 = duo34, n35 = duo35, n45 = duo45, n123=duo123, n124 = duo124, n125=duo125, n134=duo134, n135 =duo135, n145 = duo145, n234 = duo234, n235=duo235, n245=duo245, n345=duo345, n1234 = duo1234, n1235 = duo1235, n1245=duo1245, n1345 = duo1345, n2345 = duo2345, n12345 = duo12345,
+                    lwd = rep(2, 5),
+                    lty = rep('solid', 5),
+                    col = rep('black', 5),
+                    fill = NULL,
+                    alpha = rep(0.5, 5),
+                    label.col = rep('black', 31),
+                    cex = rep(1, 31),
+                    fontface = rep('plain', 31),
+                    fontfamily = rep('serif', 31),
+                    cat.pos = c(0, 287.5, 215, 145, 70),
+                    cat.dist = rep(0.2, 5),
+                    cat.col = rep('black', 5),
+                    cat.cex = rep(1, 5),
+                    cat.fontface = rep('plain', 5),
+                    cat.fontfamily = rep('serif', 5),
+                    cat.just = rep(list(c(0.5, 0.5)), 5),
+                    rotation.degree = 0,
+                    rotation.centre = c(0.5, 0.5),
+                    ind = TRUE,
+                    cex.prop=NULL,
+                    print.mode = 'raw',
+                    sigdigs=3,
+                    direct.area=FALSE,
+                    area.vector=0,)
+#mine is better
+#lets try top5trios_aPOE
+trio1=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio1
+trio2=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio2
+trio3=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio3
+trio4=(nrow(subset(genphen, (genphen$TNIP1_rs871269+genphen$APOE_rs429358+genphen$ABCA7_rs12151021) == 6)))
+trio4
+trio5=(nrow(subset(genphen, (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio5
+trio12=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio12
+trio13=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio13
+trio14=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio14
+trio15=(nrow(subset(genphen, (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio15
+trio23=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio23
+trio24=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio24
+trio25=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio25
+trio34=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio34
+trio35=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio35
+trio45=(nrow(subset(genphen, (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio45
+trio123=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio123
+trio124=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio124
+trio125=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio125
+trio134=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio134
+trio135=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio135
+trio145=(nrow(subset(genphen, (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6)))
+trio145
+trio234=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio234
+trio235=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio235
+trio245=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio245
+trio345=(nrow(subset(genphen, (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio345
+trio1234=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio1234
+trio1235=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio1235
+trio1245=(nrow(subset(genphen, (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6)))
+trio1245
+trio1345=(nrow(subset(genphen, (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$UNC5CL_rs10947943+genphen$ANK3_rs7068231+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio1345
+trio2345=(nrow(subset(genphen, (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio2345
+trio12345=(nrow(subset(genphen, (genphen$TNIP1_rs871269+genphen$ABCA7_rs12151021+genphen$APOE_rs429358) == 6 & (genphen$SPDYE3_rs7384878+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$KLF16_rs149080927+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6 & (genphen$JAZF1_rs1160871+genphen$CTSH_rs12592898+genphen$APOE_rs429358) == 6)))
+trio12345
+grid.newpage()
+draw.quintuple.venn(area1 = trio1, area2 = trio2, area3=trio3, area4 = trio4, area5 = trio5, n12=trio12, n13 = trio13, n14 = trio14, n15 = trio15, n23 = trio23, n24 = trio24, n25 = trio25,  n34 = trio34, n35 = trio35, n45 = trio45, n123=trio123, n124 = trio124, n125=trio125, n134=trio134, n135 =trio135, n145 = trio145, n234 = trio234, n235=trio235, n245=trio245, n345=trio345, n1234 = trio1234, n1235 = trio1235, n1245=trio1245, n1345 = trio1345, n2345 = trio2345, n12345 = trio12345, cat.pos = c(0, 287.5, 215, 145, 70),fill = c("skyblue", "pink1", "mediumorchid","green","yellow"),lty="blank", alpha=0.5, category = c("ABCA7","PRKD3","COX7C","IGHclust","SHARPIN"), cat.cex = rep(1,5), cat.default.pos = "inner", print.mode = "raw", sigdigs = 2)
+#try to re-run it but with different code
+#lets try to build the df automatically
+#first: substract only the genotypes
